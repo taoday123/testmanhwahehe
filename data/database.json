@@ -1,0 +1,17 @@
+{
+  "users": [],
+  "stories": [
+    {
+      "id": "1",
+      "title": "Truyện A",
+      "description": "Truyện hot nhất",
+      "views": 0
+    },
+    {
+      "id": "2",
+      "title": "Truyện B",
+      "description": "Truyện siêu cấp",
+      "views": 0
+    }
+  ]
+}
