@@ -25,70 +25,73 @@ app.post("/api/views", (req, res) => {
   res.json(data);
 });
 
-// React + 2 trang trong 1 file
+// Frontend 2 trang trong 1 file
 app.get("*", (req, res) => {
   res.send(`
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>View Counter</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/react-router-dom/umd/react-router-dom.min.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Simple View Counter</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
 
-    <script>
-      const { BrowserRouter, Routes, Route, Link } = ReactRouterDOM;
-      const { useState, useEffect } = React;
+<script>
+const { useState, useEffect } = React;
 
-      function Page1() {
-        const [views, setViews] = useState(0);
+function App() {
+  const [views, setViews] = useState(0);
+  const [page, setPage] = useState(window.location.pathname);
 
-        useEffect(() => {
-          fetch("/api/views")
-            .then(res => res.json())
-            .then(data => setViews(data.views));
-        }, []);
+  useEffect(() => {
+    if (page === "/") {
+      fetch("/api/views")
+        .then(res => res.json())
+        .then(data => setViews(data.views));
+    }
 
-        return React.createElement("div", null,
-          React.createElement("h1", null, "Trang 1"),
-          React.createElement("h2", null, "Lượt xem: " + views),
-          React.createElement(Link, { to: "/page2" }, "Đi tới Trang 2")
-        );
+    if (page === "/page2") {
+      fetch("/api/views", { method: "POST" });
+    }
+  }, [page]);
+
+  if (page === "/page2") {
+    return React.createElement("div", null,
+      React.createElement("h1", null, "Trang 2"),
+      React.createElement("p", null, "Đã +1 view 👀"),
+      React.createElement("button", {
+        onClick: () => {
+          window.history.pushState({}, "", "/");
+          setPage("/");
+        }
+      }, "Quay lại Trang 1")
+    );
+  }
+
+  return React.createElement("div", null,
+    React.createElement("h1", null, "Trang 1"),
+    React.createElement("h2", null, "Lượt xem: " + views),
+    React.createElement("button", {
+      onClick: () => {
+        window.history.pushState({}, "", "/page2");
+        setPage("/page2");
       }
+    }, "Đi tới Trang 2")
+  );
+}
 
-      function Page2() {
-        useEffect(() => {
-          fetch("/api/views", { method: "POST" });
-        }, []);
+ReactDOM.createRoot(document.getElementById("root")).render(
+  React.createElement(App)
+);
+</script>
 
-        return React.createElement("div", null,
-          React.createElement("h1", null, "Trang 2"),
-          React.createElement("p", null, "Đã tính 1 lượt xem 👀"),
-          React.createElement(Link, { to: "/" }, "Quay lại Trang 1")
-        );
-      }
-
-      function App() {
-        return React.createElement(BrowserRouter, null,
-          React.createElement(Routes, null,
-            React.createElement(Route, { path: "/", element: React.createElement(Page1) }),
-            React.createElement(Route, { path: "/page2", element: React.createElement(Page2) })
-          )
-        );
-      }
-
-      ReactDOM.createRoot(document.getElementById("root")).render(
-        React.createElement(App)
-      );
-    </script>
-  </body>
-  </html>
-  `);
+</body>
+</html>
+`);
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log("Server running"));
+app.listen(PORT, () => console.log("Server running on port " + PORT));
