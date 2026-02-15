@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Truyện</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>🔥 Web Truyện</h1>
+  <nav>
+    <a href="login.html">Login</a>
+    <a href="register.html">Register</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>📈 Truyện Hot</h2>
+  <div class="grid" id="storyList"></div>
+</div>
+
+<script>
+async function loadStories() {
+  const res = await fetch("/api/stories");
+  const stories = await res.json();
+
+  const container = document.getElementById("storyList");
+  container.innerHTML = "";
+
+  stories.forEach(story => {
+    container.innerHTML += `
+      <div class="card" onclick="openStory('${story.id}')">
+        <img src="https://picsum.photos/300/400?random=${story.id}">
+        <div class="card-body">
+          <h3>${story.title}</h3>
+          <p class="views">👁 ${story.views} views</p>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function openStory(id) {
+  window.location.href = "story.html?id=" + id;
+}
+
+loadStories();
+</script>
+
+</body>
+</html>
